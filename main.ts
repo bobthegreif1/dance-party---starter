@@ -1,3 +1,15 @@
+controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
+    dancer.x = arrowX[1]
+    controller.right.onEvent(ControllerButtonEvent.Pressed, function() {
+        dancer.x=arrowX[2]
+     })
+controller.down.onEvent(ControllerButtonEvent.Pressed, function() {
+        dancer.x=arrowX[3]
+     })
+})
+controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
+    dancer.x = arrowX[0]
+})
 function setUpStopper () {
     stopper = sprites.create(img`
         1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
@@ -17,15 +29,25 @@ function setUpStopper () {
     true
     )
 }
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
+    info.changeScoreBy(1)
+    otherSprite.destroy(effects.fire, 500)
+})
 function makeArrow () {
-   let arrowNumber = randint(0, 3)
-    let arrow = sprites.create(arrowImgs[arrowNumber], SpriteKind.Food)
-    arrow.y=7
+    arrowNumber = randint(0, 3)
+    arrow = sprites.create(arrowImgs[arrowNumber], SpriteKind.Food)
+    arrow.y = 7
+    if (info.score() >=5 ){
     arrow.vy = 50
-
-
-}
+    }   else if (info.score() <=5 ){
+    arrow.x = arrowX[arrowNumber]
+        arrow.vy= 50}
+    }
+let arrow: Sprite = null
+let arrowNumber = 0
 let stopper: Sprite = null
+let dancer: Sprite = null
+let arrowX: number[] = []
 let arrowImgs: Image[] = []
 scene.setBackgroundImage(img`
     ................................................................................................................................................................
@@ -218,8 +240,9 @@ arrowImgs = [img`
     6 6 6 6 6 6 1 1 1 6 6 6 6 6 6 6 
     6 6 6 6 6 6 6 1 6 6 6 6 6 6 6 6 
     `]
+arrowX = [30, 60, 90, 120]
 setUpStopper()
-let dancer = sprites.create(img`
+dancer = sprites.create(img`
     ........................
     ........................
     ........................
@@ -246,8 +269,11 @@ let dancer = sprites.create(img`
     ........................
     `, SpriteKind.Player)
 dancer.y = 100
-
-
-game.onUpdateInterval(1000, function() {
+game.onUpdateInterval(1000, function () {
     makeArrow()
+})
+info.setLife(5)
+sprites.onOverlap(SpriteKind.Food, SpriteKind.Enemy, function(sprite: Sprite, otherSprite: Sprite) {
+    info.changeLifeBy(-1)
+    sprite.destroy()
 })
